@@ -19,4 +19,18 @@ export class FavoritesRepository {
       .filter(([, isFavorite]) => isFavorite === true)
       .map(([productId]) => productId);
   }
+
+  async adicionarFavorito(userId: string, productId: string): Promise<void> {
+    await this.firebaseService
+      .getDatabase()
+      .ref(`userFavorites/${userId}/${productId}`)
+      .set(true);
+  }
+
+  async removerFavorito(userId: string, productId: string): Promise<void> {
+    await this.firebaseService
+      .getDatabase()
+      .ref(`userFavorites/${userId}/${productId}`)
+      .remove();
+  }
 }

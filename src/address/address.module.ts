@@ -1,0 +1,12 @@
+import { Module } from '@nestjs/common';
+import { FirebaseModule } from 'src/firebase/firebase.module';
+import { AddressController } from './address.controller';
+import { AddressRepository } from './address.repository';
+import { AddressService } from './address.service';
+
+@Module({
+  imports: [FirebaseModule],
+  controllers: [AddressController],
+  providers: [AddressService, AddressRepository],
+})
+export class AddressModule {}

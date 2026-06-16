@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
-import { CartService } from './cart.service';
+import { FirebaseModule } from 'src/firebase/firebase.module';
 import { CartController } from './cart.controller';
+import { CartRepository } from './cart.repository';
+import { CartService } from './cart.service';
 
 @Module({
-  providers: [CartService],
-  controllers: [CartController]
+  imports: [FirebaseModule],
+  controllers: [CartController],
+  providers: [CartService, CartRepository],
 })
 export class CartModule {}

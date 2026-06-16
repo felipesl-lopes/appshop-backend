@@ -41,4 +41,24 @@ export class ProductsRepository {
       ...data,
     };
   }
+
+  async createProduct(product: Omit<Product, 'id'>): Promise<string> {
+    const ref = await this.firebaseService
+      .getDatabase()
+      .ref('products')
+      .push(product);
+
+    return ref.key as string;
+  }
+
+  async updateProduct(id: string, product: Omit<Product, 'id'>): Promise<void> {
+    await this.firebaseService
+      .getDatabase()
+      .ref(`products/${id}`)
+      .update(product);
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    await this.firebaseService.getDatabase().ref(`products/${id}`).remove();
+  }
 }
