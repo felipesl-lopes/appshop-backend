@@ -20,7 +20,7 @@ export class AddressService {
   async addAddress(
     userId: string,
     address: Omit<Address, 'id'>,
-  ): Promise<void> {
+  ): Promise<Address> {
     return this.addressRepository.addAddress(userId, address);
   }
 
@@ -30,5 +30,9 @@ export class AddressService {
     address: Omit<Address, 'id'>,
   ): Promise<void> {
     return this.addressRepository.editAddress(userId, addressId, address);
+  }
+
+  async removeAddress(userId: string, addressId: string): Promise<void> {
+    return this.addressRepository.removeAddress(userId, addressId);
   }
 }

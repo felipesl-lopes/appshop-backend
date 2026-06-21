@@ -44,11 +44,13 @@ export class AddressRepository {
   async addAddress(
     userId: string,
     address: Omit<Address, 'id'>,
-  ): Promise<void> {
-    await this.firebaseService
+  ): Promise<Address> {
+    const addressRef = await this.firebaseService
       .getDatabase()
       .ref(`address/${userId}`)
       .push(address);
+
+    return { id: addressRef.key as string, ...address };
   }
 
   async editAddress(
@@ -60,5 +62,12 @@ export class AddressRepository {
       .getDatabase()
       .ref(`address/${userId}/${addressId}`)
       .update(address);
+  }
+
+  async removeAddress(userId: string, addressId: string): Promise<void> {
+    await this.firebaseService
+      .getDatabase()
+      .ref(`address/${userId}/${addressId}`)
+      .remove();
   }
 }

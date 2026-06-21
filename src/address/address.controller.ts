@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { AddressService } from './address.service';
 import { Address } from './address.interface';
 
@@ -23,8 +31,8 @@ export class AddressController {
   async addAddress(
     @Param('userId') userId: string,
     @Body() address: Omit<Address, 'id'>,
-  ): Promise<void> {
-    await this.addressService.addAddress(userId, address);
+  ): Promise<Address> {
+    return this.addressService.addAddress(userId, address);
   }
 
   @Put(':userId/:addressId')
@@ -34,5 +42,13 @@ export class AddressController {
     @Body() address: Omit<Address, 'id'>,
   ): Promise<void> {
     await this.addressService.editAddress(userId, addressId, address);
+  }
+
+  @Delete(':userId/:addressId')
+  async removeAddress(
+    @Param('userId') userId: string,
+    @Param('addressId') addressId: string,
+  ): Promise<void> {
+    await this.addressService.removeAddress(userId, addressId);
   }
 }
