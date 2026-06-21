@@ -32,7 +32,6 @@ export class CartRepository {
     }
 
     await ref.set({
-      productId,
       quantity,
     });
   }

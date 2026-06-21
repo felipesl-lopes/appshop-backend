@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 
 @Controller('userFavorites')

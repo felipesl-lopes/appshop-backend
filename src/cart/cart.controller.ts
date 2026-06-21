@@ -26,7 +26,7 @@ export class CartController {
     );
   }
 
-  @Delete('userId')
+  @Delete(':userId')
   async clearCart(@Param('userId') userId: string): Promise<void> {
     await this.cartService.clearCart(userId);
   }

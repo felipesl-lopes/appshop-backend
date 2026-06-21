@@ -21,10 +21,15 @@ export class FavoritesRepository {
   }
 
   async adicionarFavorito(userId: string, productId: string): Promise<void> {
-    await this.firebaseService
-      .getDatabase()
-      .ref(`userFavorites/${userId}/${productId}`)
-      .set(true);
+    try {
+      await this.firebaseService
+        .getDatabase()
+        .ref(`userFavorites/${userId}/${productId}`)
+        .set(true);
+    } catch (error) {
+      console.error('Erro ao adicionar favorito:', error);
+      throw error;
+    }
   }
 
   async removerFavorito(userId: string, productId: string): Promise<void> {
