@@ -1,11 +1,11 @@
 import { Address } from 'src/address/address.interface';
 
 export interface Orders {
-  id: string;
+  id?: string;
   total: number;
   products: Compras[];
-  date: Date;
-  endereco: Address | null;
+  date: string;
+  address: Address | null;
 }
 
 interface Compras {

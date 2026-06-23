@@ -8,5 +8,6 @@ import { AddressService } from './address.service';
   imports: [FirebaseModule],
   controllers: [AddressController],
   providers: [AddressService, AddressRepository],
+  exports: [AddressRepository],
 })
 export class AddressModule {}

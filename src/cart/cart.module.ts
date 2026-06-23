@@ -8,5 +8,6 @@ import { CartService } from './cart.service';
   imports: [FirebaseModule],
   controllers: [CartController],
   providers: [CartService, CartRepository],
+  exports: [CartRepository],
 })
 export class CartModule {}
