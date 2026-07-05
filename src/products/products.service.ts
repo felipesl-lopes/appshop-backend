@@ -7,7 +7,25 @@ export class ProductsService {
   constructor(private readonly productsRepository: ProductsRepository) {}
 
   async getProducts(): Promise<Product[]> {
-    return this.productsRepository.getProducts();
+    const products = await this.productsRepository.getProducts();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (const product of products) {
+      if (
+        product.isPromotional &&
+        product.promotionEndDate &&
+        new Date(product.promotionEndDate) < today
+      ) {
+        await this.productsRepository.clearPromotion(product.id);
+
+        product.isPromotional = false;
+        product.discountPercentage = undefined;
+        product.promotionEndDate = undefined;
+      }
+    }
+    return products;
   }
 
   async getProductById(id: string): Promise<Product | null> {

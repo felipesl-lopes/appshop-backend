@@ -61,4 +61,12 @@ export class ProductsRepository {
   async deleteProduct(id: string): Promise<void> {
     await this.firebaseService.getDatabase().ref(`products/${id}`).remove();
   }
+
+  async clearPromotion(id: string): Promise<void> {
+    await this.firebaseService.getDatabase().ref(`products/${id}`).update({
+      isPromotional: false,
+      discountPercentage: null,
+      promotionEndDate: null,
+    });
+  }
 }
