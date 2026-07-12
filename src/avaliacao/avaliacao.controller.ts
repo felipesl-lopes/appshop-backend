@@ -1,10 +1,15 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { AvaliacaoService } from './avaliacao.service';
 import type { CriarAvaliacao } from './avaliacao.interface';
 
 @Controller('avaliacao')
 export class AvaliacaoController {
   constructor(private readonly avaliacaoService: AvaliacaoService) {}
+
+  @Get(':productId')
+  async carregarAvaliacoesPorProduto(@Param('productId') productId: string) {
+    return this.avaliacaoService.carregarAvaliacoesPorProduto(productId);
+  }
 
   @Post(':productId')
   async enviarAvaliacao(

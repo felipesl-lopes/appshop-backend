@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { AvaliacaoRepository } from './avaliacao.repository';
-import type { CriarAvaliacao } from './avaliacao.interface';
+import type { Avaliacao, CriarAvaliacao } from './avaliacao.interface';
 
 @Injectable()
 export class AvaliacaoService {
   constructor(private readonly avaliacaoRepository: AvaliacaoRepository) {}
+
+  async carregarAvaliacoesPorProduto(productId: string): Promise<Avaliacao[]> {
+    return this.avaliacaoRepository.carregarAvaliacoesPorProduto(productId);
+  }
 
   async enviarAvaliacao(
     productId: string,

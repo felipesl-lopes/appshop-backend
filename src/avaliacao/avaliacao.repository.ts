@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { OrdersRepository } from 'src/orders/orders.repository';
-import { CriarAvaliacao } from './avaliacao.interface';
+import { Avaliacao, CriarAvaliacao } from './avaliacao.interface';
 import { ProductsRepository } from 'src/products/products.repository';
 
 @Injectable()
@@ -11,6 +11,25 @@ export class AvaliacaoRepository {
     private readonly orderRepository: OrdersRepository,
     private readonly productsRepository: ProductsRepository,
   ) {}
+
+  async carregarAvaliacoesPorProduto(productId: string): Promise<Avaliacao[]> {
+    const snapshot = await this.firebaseService
+      .getDatabase()
+      .ref(`avaliacao/${productId}`)
+      .get();
+
+    const data = snapshot.val() as Record<string, Omit<Avaliacao, 'id'>> | null;
+
+    if (!data) {
+      return [];
+    }
+
+    return Object.entries(data).map(([id, avaliacao]) => ({
+      id,
+      ...avaliacao,
+      dataCriacao: new Date(avaliacao.dataCriacao),
+    }));
+  }
 
   async enviarAvaliacao(
     productId: string,
