@@ -13,4 +13,6 @@ export interface Product {
   isPromotional: boolean;
   discountPercentage?: number;
   promotionEndDate?: Date;
+  notaMedia: number;
+  totalAvaliacoes: number;
 }

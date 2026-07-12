@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable } from '@nestjs/common';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { Orders } from './oders.interface';
@@ -29,5 +31,31 @@ export class OrdersRepository {
       .push(order);
 
     return orderRef.key as string;
+  }
+
+  async atualizarAvaliacaoId(
+    userId: string,
+    orderId: string,
+    productId: string,
+    avaliacaoId: string,
+  ): Promise<void> {
+    const ref = this.firebaseService
+      .getDatabase()
+      .ref(`orders/${userId}/${orderId}/products`);
+
+    const snapshot = await ref.get();
+
+    const products = snapshot.val();
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    for (const key of Object.keys(products)) {
+      if (products[key].id === productId) {
+        await ref.child(key).update({
+          avaliacaoId,
+        });
+
+        break;
+      }
+    }
   }
 }

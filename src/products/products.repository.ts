@@ -21,6 +21,8 @@ export class ProductsRepository {
     return Object.entries(data).map(([id, product]) => ({
       id,
       ...product,
+      notaMedia: Number(product.notaMedia ?? 0.0),
+      totalAvaliacoes: product.totalAvaliacoes ?? 0,
     }));
   }
 
@@ -67,6 +69,32 @@ export class ProductsRepository {
       isPromotional: false,
       discountPercentage: null,
       promotionEndDate: null,
+    });
+  }
+
+  async atualizarAvaliacaoProduto(id: string, nota: number): Promise<void> {
+    interface ProductAvaliacao {
+      totalAvaliacoes?: number;
+      notaMedia?: number;
+    }
+
+    const ref = this.firebaseService.getDatabase().ref(`products/${id}`);
+
+    const snapshot = await ref.get();
+
+    const produto = snapshot.val() as ProductAvaliacao | null;
+
+    const totalAtual = produto?.totalAvaliacoes ?? 0;
+    const mediaAtual = produto?.notaMedia ?? 0;
+
+    const novoTotal = totalAtual + 1;
+    const novaMedia = Number(
+      ((mediaAtual * totalAtual + nota) / novoTotal).toFixed(2),
+    );
+
+    await ref.update({
+      totalAvaliacoes: novoTotal,
+      notaMedia: novaMedia.toFixed(2),
     });
   }
 }
