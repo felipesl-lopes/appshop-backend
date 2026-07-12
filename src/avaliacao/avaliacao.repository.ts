@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { OrdersRepository } from 'src/orders/orders.repository';
-import { Avaliacao, CriarAvaliacao } from './avaliacao.interface';
+import {
+  Avaliacao,
+  AvaliacaoResponse,
+  CriarAvaliacao,
+} from './avaliacao.interface';
 import { ProductsRepository } from 'src/products/products.repository';
+import { UsersRepository } from 'src/users/users.repository';
 
 @Injectable()
 export class AvaliacaoRepository {
@@ -10,9 +15,12 @@ export class AvaliacaoRepository {
     private readonly firebaseService: FirebaseService,
     private readonly orderRepository: OrdersRepository,
     private readonly productsRepository: ProductsRepository,
+    private readonly usersRepository: UsersRepository,
   ) {}
 
-  async carregarAvaliacoesPorProduto(productId: string): Promise<Avaliacao[]> {
+  async carregarAvaliacoesPorProduto(
+    productId: string,
+  ): Promise<AvaliacaoResponse[]> {
     const snapshot = await this.firebaseService
       .getDatabase()
       .ref(`avaliacao/${productId}`)
@@ -24,11 +32,25 @@ export class AvaliacaoRepository {
       return [];
     }
 
-    return Object.entries(data).map(([id, avaliacao]) => ({
-      id,
-      ...avaliacao,
-      dataCriacao: new Date(avaliacao.dataCriacao),
-    }));
+    const avaliacoes = await Promise.all(
+      Object.entries(data).map(async ([id, avaliacao]) => {
+        const nomeUsuario = await this.usersRepository.carregarNomeUsuario(
+          avaliacao.usuarioId,
+        );
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { usuarioId, ...resto } = avaliacao;
+
+        return {
+          id,
+          ...resto,
+          nomeUsuario,
+          dataCriacao: new Date(avaliacao.dataCriacao),
+        };
+      }),
+    );
+
+    return avaliacoes;
   }
 
   async enviarAvaliacao(
@@ -44,6 +66,7 @@ export class AvaliacaoRepository {
       nota: avaliacao.nota,
       comentario: avaliacao.comentario,
       dataCriacao: avaliacao.dataCriacao,
+      usuarioId: avaliacao.usuarioId,
     });
 
     await this.orderRepository.atualizarAvaliacaoId(

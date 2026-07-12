@@ -12,6 +12,7 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ProductsModule } from './products/products.module';
     BannersModule,
     CheckoutModule,
     AvaliacaoModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
