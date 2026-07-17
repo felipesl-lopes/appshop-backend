@@ -15,7 +15,11 @@ export class AvaliacaoService {
   async enviarAvaliacao(
     productId: string,
     avaliacao: CriarAvaliacao,
-  ): Promise<string> {
+  ): Promise<{
+    avaliacaoId: string;
+    notaMedia: number;
+    totalAvaliacoes: number;
+  }> {
     return this.avaliacaoRepository.enviarAvaliacao(productId, {
       ...avaliacao,
       dataCriacao: new Date().toISOString(),

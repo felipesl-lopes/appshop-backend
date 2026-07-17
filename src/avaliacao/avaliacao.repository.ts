@@ -56,7 +56,11 @@ export class AvaliacaoRepository {
   async enviarAvaliacao(
     productId: string,
     avaliacao: CriarAvaliacao,
-  ): Promise<string> {
+  ): Promise<{
+    avaliacaoId: string;
+    notaMedia: number;
+    totalAvaliacoes: number;
+  }> {
     const ref = await this.firebaseService
       .getDatabase()
       .ref(`avaliacao/${productId}`)
@@ -76,11 +80,16 @@ export class AvaliacaoRepository {
       ref.key!,
     );
 
-    await this.productsRepository.atualizarAvaliacaoProduto(
-      productId,
-      avaliacao.nota,
-    );
+    const { notaMedia, totalAvaliacoes } =
+      await this.productsRepository.atualizarAvaliacaoProduto(
+        productId,
+        avaliacao.nota,
+      );
 
-    return ref.key!;
+    return {
+      avaliacaoId: ref.key!,
+      notaMedia,
+      totalAvaliacoes,
+    };
   }
 }

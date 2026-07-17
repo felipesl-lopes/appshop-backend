@@ -72,7 +72,10 @@ export class ProductsRepository {
     });
   }
 
-  async atualizarAvaliacaoProduto(id: string, nota: number): Promise<void> {
+  async atualizarAvaliacaoProduto(
+    id: string,
+    nota: number,
+  ): Promise<{ notaMedia: number; totalAvaliacoes: number }> {
     interface ProductAvaliacao {
       totalAvaliacoes?: number;
       notaMedia?: number;
@@ -96,5 +99,7 @@ export class ProductsRepository {
       totalAvaliacoes: novoTotal,
       notaMedia: novaMedia.toFixed(2),
     });
+
+    return { notaMedia: novaMedia, totalAvaliacoes: novoTotal };
   }
 }
