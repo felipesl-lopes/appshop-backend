@@ -1,33 +1,47 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import type { Cart } from './cart.interface';
 import { CartService } from './cart.service';
+import { FirebaseAuthGuard } from 'src/auth/firebase_auth_guard';
+import type { AuthenticatedRequest } from 'src/address/authenticate_request.interface';
 
 @Controller('cartProducts')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @Get(':userId')
+  @UseGuards(FirebaseAuthGuard)
+  @Get()
   async getCart(
-    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
   ): Promise<Record<string, Cart>> {
-    return this.cartService.getCart(userId);
+    return this.cartService.getCart(req.user.uid);
   }
 
-  @Patch(':userId/:productId')
+  @UseGuards(FirebaseAuthGuard)
+  @Patch(':productId')
   async updateQuantityProduct(
-    @Param('userId') userId: string,
     @Param('productId') productId: string,
+    @Req() req: AuthenticatedRequest,
     @Body() body: Cart,
   ): Promise<void> {
     await this.cartService.updateQuantityProduct(
-      userId,
+      req.user.uid,
       productId,
       body.quantity,
     );
   }
 
-  @Delete(':userId')
-  async clearCart(@Param('userId') userId: string): Promise<void> {
-    await this.cartService.clearCart(userId);
+  @UseGuards(FirebaseAuthGuard)
+  @Delete()
+  async clearCart(@Req() req: AuthenticatedRequest): Promise<void> {
+    await this.cartService.clearCart(req.user.uid);
   }
 }

@@ -1,28 +1,41 @@
-import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import type { AuthenticatedRequest } from 'src/address/authenticate_request.interface';
+import { FirebaseAuthGuard } from 'src/auth/firebase_auth_guard';
 import { FavoritesService } from './favorites.service';
 
 @Controller('userFavorites')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
-  @Get(':userId')
-  async carregarFavoritos(@Param('userId') userId: string): Promise<string[]> {
-    return this.favoritesService.carregarFavoritos(userId);
+  @UseGuards(FirebaseAuthGuard)
+  @Get()
+  async carregarFavoritos(@Req() req: AuthenticatedRequest): Promise<string[]> {
+    return this.favoritesService.carregarFavoritos(req.user.uid);
   }
 
-  @Put(':userId/:productId')
+  @UseGuards(FirebaseAuthGuard)
+  @Put(':productId')
   async adicionarFavorito(
-    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
     @Param('productId') productId: string,
   ): Promise<void> {
-    await this.favoritesService.adicionarFavorito(userId, productId);
+    await this.favoritesService.adicionarFavorito(req.user.uid, productId);
   }
 
-  @Delete(':userId/:productId')
+  @UseGuards(FirebaseAuthGuard)
+  @Delete(':productId')
   async removerFavorito(
-    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
     @Param('productId') productId: string,
   ): Promise<void> {
-    await this.favoritesService.removerFavorito(userId, productId);
+    await this.favoritesService.removerFavorito(req.user.uid, productId);
   }
 }
