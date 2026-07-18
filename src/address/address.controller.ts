@@ -6,49 +6,58 @@ import {
   Param,
   Post,
   Put,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
-import { AddressService } from './address.service';
+import { FirebaseAuthGuard } from 'src/auth/firebase_auth_guard';
 import { Address } from './address.interface';
+import { AddressService } from './address.service';
+import type { AuthenticatedRequest } from './authenticate_request.interface';
 
 @Controller('address')
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
-  @Get(':userId')
-  async getAddress(@Param('userId') userId: string): Promise<Address[]> {
-    return this.addressService.getAddress(userId);
+  @UseGuards(FirebaseAuthGuard)
+  @Get()
+  async getAddress(@Req() req: AuthenticatedRequest): Promise<Address[]> {
+    return this.addressService.getAddress(req.user.uid);
   }
 
-  @Get(':userId/:addressId')
+  @UseGuards(FirebaseAuthGuard)
+  @Get(':addressId')
   async searchAddress(
-    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
     @Param('addressId') addressId: string,
   ): Promise<Address | null> {
-    return this.addressService.searchAddress(userId, addressId);
+    return this.addressService.searchAddress(req.user.uid, addressId);
   }
 
-  @Post(':userId')
+  @UseGuards(FirebaseAuthGuard)
+  @Post()
   async addAddress(
-    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
     @Body() address: Omit<Address, 'id'>,
   ): Promise<Address> {
-    return this.addressService.addAddress(userId, address);
+    return this.addressService.addAddress(req.user.uid, address);
   }
 
-  @Put(':userId/:addressId')
+  @UseGuards(FirebaseAuthGuard)
+  @Put(':addressId')
   async editAddress(
-    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
     @Param('addressId') addressId: string,
     @Body() address: Omit<Address, 'id'>,
   ): Promise<void> {
-    await this.addressService.editAddress(userId, addressId, address);
+    await this.addressService.editAddress(req.user.uid, addressId, address);
   }
 
-  @Delete(':userId/:addressId')
+  @UseGuards(FirebaseAuthGuard)
+  @Delete(':addressId')
   async removeAddress(
-    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
     @Param('addressId') addressId: string,
   ): Promise<void> {
-    await this.addressService.removeAddress(userId, addressId);
+    await this.addressService.removeAddress(req.user.uid, addressId);
   }
 }
