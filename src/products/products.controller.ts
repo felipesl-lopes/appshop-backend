@@ -6,17 +6,32 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
-import type { Product } from './products.interface';
+import type { Product, ProductResponse } from './products.interface';
 import { ProductsService } from './products.service';
+import { FirebaseAuthGuard } from 'src/auth/firebase_auth_guard';
+import type { AuthenticatedRequest } from 'src/address/authenticate_request.interface';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @UseGuards(FirebaseAuthGuard)
   @Get()
-  async getProducts(): Promise<Product[]> {
-    return this.productsService.getProducts();
+  async getProducts(
+    @Req() req: AuthenticatedRequest,
+  ): Promise<ProductResponse[]> {
+    return this.productsService.getProducts(req.user.uid);
+  }
+
+  @UseGuards(FirebaseAuthGuard)
+  @Get('my')
+  async getMtProducts(
+    @Req() req: AuthenticatedRequest,
+  ): Promise<ProductResponse[]> {
+    return this.productsService.getMyProducts(req.user.uid);
   }
 
   @Get(':id')
@@ -24,17 +39,29 @@ export class ProductsController {
     return this.productsService.getProductById(id);
   }
 
+  @UseGuards(FirebaseAuthGuard)
   @Post()
-  async createProduct(@Body() product: Omit<Product, 'id'>): Promise<string> {
-    return this.productsService.createProduct(product);
+  async createProduct(
+    @Req() req: AuthenticatedRequest,
+    @Body() product: Omit<Product, 'id'>,
+  ): Promise<string> {
+    return this.productsService.createProduct({
+      ...product,
+      userId: req.user.uid,
+    });
   }
 
+  @UseGuards(FirebaseAuthGuard)
   @Patch(':id')
   async updateProduct(
     @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
     @Body() product: Omit<Product, 'id'>,
-  ): Promise<void> {
-    await this.productsService.updateProduct(id, product);
+  ): Promise<ProductResponse> {
+    return await this.productsService.updateProduct(id, {
+      ...product,
+      userId: req.user.uid,
+    });
   }
 
   @Delete(':id')

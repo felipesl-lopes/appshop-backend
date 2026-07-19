@@ -1,14 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { Product } from './products.interface';
+import { Product, ProductResponse } from './products.interface';
 import { ProductsRepository } from './products.repository';
 
 @Injectable()
 export class ProductsService {
   constructor(private readonly productsRepository: ProductsRepository) {}
 
-  async getProducts(): Promise<Product[]> {
-    const products = await this.productsRepository.getProducts();
+  async getProducts(userId: string): Promise<ProductResponse[]> {
+    const products = await this.productsRepository.getProducts(userId);
 
+    return this.validatePromotions(products);
+  }
+
+  async getMyProducts(userId: string): Promise<ProductResponse[]> {
+    const products = await this.productsRepository.getMyProducts(userId);
+
+    return this.validatePromotions(products);
+  }
+
+  private async validatePromotions(
+    products: ProductResponse[],
+  ): Promise<ProductResponse[]> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -25,6 +37,7 @@ export class ProductsService {
         product.promotionEndDate = undefined;
       }
     }
+
     return products;
   }
 
@@ -36,8 +49,11 @@ export class ProductsService {
     return this.productsRepository.createProduct(product);
   }
 
-  async updateProduct(id: string, product: Omit<Product, 'id'>): Promise<void> {
-    await this.productsRepository.updateProduct(id, product);
+  async updateProduct(
+    id: string,
+    product: Omit<Product, 'id'>,
+  ): Promise<ProductResponse> {
+    return await this.productsRepository.updateProduct(id, product);
   }
 
   async deleteProduct(id: string): Promise<void> {

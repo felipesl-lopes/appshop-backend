@@ -1,21 +1,25 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { OrdersService } from './orders.service';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import type { AuthenticatedRequest } from 'src/address/authenticate_request.interface';
+import { FirebaseAuthGuard } from 'src/auth/firebase_auth_guard';
 import type { Orders } from './oders.interface';
+import { OrdersService } from './orders.service';
 
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @Get(':userId')
-  async getOrders(@Param('userId') userId: string): Promise<Orders[]> {
-    return this.ordersService.getOrders(userId);
+  @UseGuards(FirebaseAuthGuard)
+  @Get()
+  async getOrders(@Req() req: AuthenticatedRequest): Promise<Orders[]> {
+    return this.ordersService.getOrders(req.user.uid);
   }
 
-  @Post(':userId')
+  @UseGuards(FirebaseAuthGuard)
+  @Post()
   async finalizeBuy(
-    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
     @Body() order: Orders,
   ): Promise<string> {
-    return this.ordersService.finalizeBuy(userId, order);
+    return this.ordersService.finalizeBuy(req.user.uid, order);
   }
 }

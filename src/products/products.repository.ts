@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { FirebaseService } from '../firebase/firebase.service';
-import { Product } from './products.interface';
+import { Product, ProductResponse } from './products.interface';
 
 @Injectable()
 export class ProductsRepository {
   constructor(private readonly firebaseService: FirebaseService) {}
 
-  async getProducts(): Promise<Product[]> {
+  async getProducts(userId: string): Promise<ProductResponse[]> {
     const snapshot = await this.firebaseService
       .getDatabase()
       .ref('products')
@@ -18,12 +18,45 @@ export class ProductsRepository {
       return [];
     }
 
-    return Object.entries(data).map(([id, product]) => ({
-      id,
-      ...product,
-      notaMedia: Number(product.notaMedia ?? 0.0),
-      totalAvaliacoes: product.totalAvaliacoes ?? 0,
-    }));
+    const filteredData = Object.fromEntries(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      Object.entries(data).filter(([_, product]) => product.userId !== userId),
+    ) as Record<string, Omit<Product, 'id'>>;
+
+    return this.returnProducts(filteredData);
+  }
+
+  async getMyProducts(userId: string): Promise<ProductResponse[]> {
+    const snapshot = await this.firebaseService
+      .getDatabase()
+      .ref('products')
+      .orderByChild('userId')
+      .equalTo(userId)
+      .get();
+
+    const data = snapshot.val() as Record<string, Omit<Product, 'id'>> | null;
+
+    return this.returnProducts(data);
+  }
+
+  private returnProducts(
+    data: Record<string, Omit<Product, 'id'>> | null,
+  ): ProductResponse[] {
+    if (!data) {
+      return [];
+    }
+
+    return Object.entries(data).map(([id, product]) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { userId: _userId, ...productWithoutUserId } = product;
+
+      return {
+        id,
+        ...productWithoutUserId,
+        notaMedia: Number(product.notaMedia ?? 0.0),
+        totalAvaliacoes: product.totalAvaliacoes ?? 0,
+      };
+    });
   }
 
   async getProductById(id: string): Promise<Product | null> {
@@ -53,11 +86,24 @@ export class ProductsRepository {
     return ref.key as string;
   }
 
-  async updateProduct(id: string, product: Omit<Product, 'id'>): Promise<void> {
+  async updateProduct(
+    id: string,
+    product: Omit<Product, 'id'>,
+  ): Promise<ProductResponse> {
     await this.firebaseService
       .getDatabase()
       .ref(`products/${id}`)
       .update(product);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { userId, ...productResponse } = product;
+
+    return {
+      id,
+      ...productResponse,
+      notaMedia: Number(product.notaMedia ?? 0.0),
+      totalAvaliacoes: product.totalAvaliacoes ?? 0,
+    };
   }
 
   async deleteProduct(id: string): Promise<void> {

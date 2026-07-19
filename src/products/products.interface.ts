@@ -16,3 +16,19 @@ export interface Product {
   notaMedia: number;
   totalAvaliacoes: number;
 }
+
+export interface ProductResponse {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrls: ProductImage[];
+  categories: string[];
+  quantity: number;
+  isFavorite: boolean;
+  isPromotional: boolean;
+  discountPercentage?: number;
+  promotionEndDate?: Date;
+  notaMedia: number;
+  totalAvaliacoes: number;
+}
