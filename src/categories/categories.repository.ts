@@ -24,4 +24,8 @@ export class CategoriesRepository {
       ...category,
     }));
   }
+
+  async addCategory(name: string): Promise<void> {
+    await this.firebaseService.getDatabase().ref('categories').push(name);
+  }
 }

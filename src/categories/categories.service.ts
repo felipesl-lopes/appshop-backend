@@ -9,4 +9,8 @@ export class CategoriesService {
   async getCategories(): Promise<Categories[]> {
     return this.categoriesRepository.getCategories();
   }
+
+  async addCategory(name: string): Promise<void> {
+    return this.categoriesRepository.addCategory(name);
+  }
 }
