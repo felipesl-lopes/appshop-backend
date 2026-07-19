@@ -28,10 +28,18 @@ export class ProductsController {
 
   @UseGuards(FirebaseAuthGuard)
   @Get('my')
-  async getMtProducts(
+  async getMyProducts(
     @Req() req: AuthenticatedRequest,
   ): Promise<ProductResponse[]> {
     return this.productsService.getMyProducts(req.user.uid);
+  }
+
+  @UseGuards(FirebaseAuthGuard)
+  @Get('favorites')
+  async getFavoritesProducts(
+    @Req() req: AuthenticatedRequest,
+  ): Promise<ProductResponse[]> {
+    return this.productsService.getFavoritesProducts(req.user.uid);
   }
 
   @Get(':id')

@@ -1,10 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { FirebaseService } from '../firebase/firebase.service';
 import { Product, ProductResponse } from './products.interface';
+import { FavoritesRepository } from 'src/favorites/favorites.repository';
 
 @Injectable()
 export class ProductsRepository {
-  constructor(private readonly firebaseService: FirebaseService) {}
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    private readonly userFavoritesRepository: FavoritesRepository,
+  ) {}
 
   async getProducts(userId: string): Promise<ProductResponse[]> {
     const snapshot = await this.firebaseService
@@ -18,12 +23,15 @@ export class ProductsRepository {
       return [];
     }
 
+    const favoritos = new Set(
+      await this.userFavoritesRepository.carregarFavoritos(userId),
+    );
+
     const filteredData = Object.fromEntries(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       Object.entries(data).filter(([_, product]) => product.userId !== userId),
     ) as Record<string, Omit<Product, 'id'>>;
 
-    return this.returnProducts(filteredData);
+    return this.returnProducts(filteredData, favoritos);
   }
 
   async getMyProducts(userId: string): Promise<ProductResponse[]> {
@@ -39,20 +47,46 @@ export class ProductsRepository {
     return this.returnProducts(data);
   }
 
+  async getFavoritesProducts(userId: string): Promise<ProductResponse[]> {
+    const snapshot = await this.firebaseService
+      .getDatabase()
+      .ref('products')
+      .get();
+
+    const data = snapshot.val() as Record<string, Omit<Product, 'id'>> | null;
+
+    if (!data) {
+      return [];
+    }
+
+    const favoritos = new Set(
+      await this.userFavoritesRepository.carregarFavoritos(userId),
+    );
+
+    const filteredData = Object.fromEntries(
+      Object.entries(data).filter(
+        ([id, product]) => product.userId !== userId && favoritos.has(id),
+      ),
+    ) as Record<string, Omit<Product, 'id'>>;
+
+    return this.returnProducts(filteredData, favoritos);
+  }
+
   private returnProducts(
     data: Record<string, Omit<Product, 'id'>> | null,
+    favoritos?: Set<string>,
   ): ProductResponse[] {
     if (!data) {
       return [];
     }
 
     return Object.entries(data).map(([id, product]) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { userId: _userId, ...productWithoutUserId } = product;
 
       return {
         id,
         ...productWithoutUserId,
+        isFavorite: favoritos?.has(id) ?? false,
         notaMedia: Number(product.notaMedia ?? 0.0),
         totalAvaliacoes: product.totalAvaliacoes ?? 0,
       };
@@ -95,7 +129,6 @@ export class ProductsRepository {
       .ref(`products/${id}`)
       .update(product);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { userId, ...productResponse } = product;
 
     return {

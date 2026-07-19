@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Put,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Delete, Param, Put, Req, UseGuards } from '@nestjs/common';
 import type { AuthenticatedRequest } from 'src/address/authenticate_request.interface';
 import { FirebaseAuthGuard } from 'src/auth/firebase_auth_guard';
 import { FavoritesService } from './favorites.service';
@@ -14,12 +6,6 @@ import { FavoritesService } from './favorites.service';
 @Controller('userFavorites')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
-
-  @UseGuards(FirebaseAuthGuard)
-  @Get()
-  async carregarFavoritos(@Req() req: AuthenticatedRequest): Promise<string[]> {
-    return this.favoritesService.carregarFavoritos(req.user.uid);
-  }
 
   @UseGuards(FirebaseAuthGuard)
   @Put(':productId')

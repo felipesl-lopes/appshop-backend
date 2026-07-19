@@ -18,6 +18,12 @@ export class ProductsService {
     return this.validatePromotions(products);
   }
 
+  async getFavoritesProducts(userId: string): Promise<ProductResponse[]> {
+    const products = await this.productsRepository.getFavoritesProducts(userId);
+
+    return this.validatePromotions(products);
+  }
+
   private async validatePromotions(
     products: ProductResponse[],
   ): Promise<ProductResponse[]> {

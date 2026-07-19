@@ -8,5 +8,6 @@ import { FavoritesService } from './favorites.service';
   imports: [FirebaseModule],
   controllers: [FavoritesController],
   providers: [FavoritesService, FavoritesRepository],
+  exports: [FavoritesRepository],
 })
 export class FavoritesModule {}
