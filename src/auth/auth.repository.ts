@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import 'dotenv/config';
 import { FirebaseService } from 'src/firebase/firebase.service';
-import { FirebaseAuthResponse } from './auth.interface';
+import {
+  FirebaseAuthResponse,
+  FirebaseRefreshTokenResponse,
+  User,
+} from './auth.interface';
 
 @Injectable()
 export class AuthRepository {
@@ -35,7 +39,9 @@ export class AuthRepository {
     return response.data as FirebaseAuthResponse;
   }
 
-  async refreshToken(refreshToken: string): Promise<FirebaseAuthResponse> {
+  async refreshToken(
+    refreshToken: string,
+  ): Promise<FirebaseRefreshTokenResponse> {
     const response = await axios.post(
       `https://securetoken.googleapis.com/v1/token?key=${this.apiKey}`,
       new URLSearchParams({
@@ -49,10 +55,10 @@ export class AuthRepository {
       },
     );
 
-    return response.data as FirebaseAuthResponse;
+    return response.data as FirebaseRefreshTokenResponse;
   }
 
-  async getUser(userId: string): Promise<FirebaseAuthResponse | null> {
+  async getUser(userId: string): Promise<User | null> {
     const snapshot = await this.firebaseService
       .getDatabase()
       .ref(`users/${userId}`)
@@ -62,10 +68,10 @@ export class AuthRepository {
       return null;
     }
 
-    return snapshot.val() as FirebaseAuthResponse;
+    return snapshot.val() as User;
   }
 
-  async saveUser(userId: string, user: FirebaseAuthResponse): Promise<void> {
+  async saveUser(userId: string, user: User): Promise<void> {
     await this.firebaseService.getDatabase().ref(`users/${userId}`).set(user);
   }
 }
