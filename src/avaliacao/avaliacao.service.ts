@@ -8,8 +8,12 @@ export class AvaliacaoService {
 
   async carregarAvaliacoesPorProduto(
     productId: string,
+    userId: string,
   ): Promise<AvaliacaoResponse[]> {
-    return this.avaliacaoRepository.carregarAvaliacoesPorProduto(productId);
+    return this.avaliacaoRepository.carregarAvaliacoesPorProduto(
+      productId,
+      userId,
+    );
   }
 
   async enviarAvaliacao(

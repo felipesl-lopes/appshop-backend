@@ -17,6 +17,7 @@ export interface AvaliacaoResponse {
   nota: number;
   comentario: string;
   dataCriacao: Date;
+  minhaAvaliacao: boolean;
 }
 
 export interface CriarAvaliacao {

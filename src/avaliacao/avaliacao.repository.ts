@@ -20,6 +20,7 @@ export class AvaliacaoRepository {
 
   async carregarAvaliacoesPorProduto(
     productId: string,
+    userId: string,
   ): Promise<AvaliacaoResponse[]> {
     const snapshot = await this.firebaseService
       .getDatabase()
@@ -38,7 +39,6 @@ export class AvaliacaoRepository {
           avaliacao.usuarioId,
         );
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { usuarioId, ...resto } = avaliacao;
 
         return {
@@ -46,6 +46,7 @@ export class AvaliacaoRepository {
           ...resto,
           nomeUsuario,
           dataCriacao: new Date(avaliacao.dataCriacao),
+          minhaAvaliacao: usuarioId == userId,
         };
       }),
     );

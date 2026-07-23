@@ -16,9 +16,16 @@ import type { AuthenticatedRequest } from 'src/address/authenticate_request.inte
 export class AvaliacaoController {
   constructor(private readonly avaliacaoService: AvaliacaoService) {}
 
+  @UseGuards(FirebaseAuthGuard)
   @Get(':productId')
-  async carregarAvaliacoesPorProduto(@Param('productId') productId: string) {
-    return this.avaliacaoService.carregarAvaliacoesPorProduto(productId);
+  async carregarAvaliacoesPorProduto(
+    @Param('productId') productId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.avaliacaoService.carregarAvaliacoesPorProduto(
+      productId,
+      req.user.uid,
+    );
   }
 
   @UseGuards(FirebaseAuthGuard)
