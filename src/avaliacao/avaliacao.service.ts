@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import type { AvaliacaoResponse, CriarAvaliacao } from './avaliacao.interface';
+import type {
+  AvaliacaoResponse,
+  GerenciaAvaliacao,
+} from './avaliacao.interface';
 import { AvaliacaoRepository } from './avaliacao.repository';
 
 @Injectable()
@@ -18,13 +21,26 @@ export class AvaliacaoService {
 
   async enviarAvaliacao(
     productId: string,
-    avaliacao: CriarAvaliacao,
+    avaliacao: GerenciaAvaliacao,
   ): Promise<{
     avaliacaoId: string;
     notaMedia: number;
     totalAvaliacoes: number;
   }> {
     return this.avaliacaoRepository.enviarAvaliacao(productId, {
+      ...avaliacao,
+      dataCriacao: new Date().toISOString(),
+    });
+  }
+
+  async editarAvaliacao(
+    productId: string,
+    avaliacao: GerenciaAvaliacao,
+  ): Promise<{
+    notaMedia: number;
+    totalAvaliacoes: number;
+  }> {
+    return this.avaliacaoRepository.editarAvaliacao(productId, {
       ...avaliacao,
       dataCriacao: new Date().toISOString(),
     });

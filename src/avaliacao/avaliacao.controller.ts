@@ -4,13 +4,14 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AvaliacaoService } from './avaliacao.service';
-import type { CriarAvaliacao } from './avaliacao.interface';
-import { FirebaseAuthGuard } from 'src/auth/firebase_auth_guard';
 import type { AuthenticatedRequest } from 'src/address/authenticate_request.interface';
+import { FirebaseAuthGuard } from 'src/auth/firebase_auth_guard';
+import type { GerenciaAvaliacao } from './avaliacao.interface';
+import { AvaliacaoService } from './avaliacao.service';
 
 @Controller('avaliacao')
 export class AvaliacaoController {
@@ -33,9 +34,22 @@ export class AvaliacaoController {
   async enviarAvaliacao(
     @Param('productId') productId: string,
     @Req() req: AuthenticatedRequest,
-    @Body() avaliacao: CriarAvaliacao,
+    @Body() avaliacao: GerenciaAvaliacao,
   ) {
     return this.avaliacaoService.enviarAvaliacao(productId, {
+      ...avaliacao,
+      usuarioId: req.user.uid,
+    });
+  }
+
+  @UseGuards(FirebaseAuthGuard)
+  @Put(':productId')
+  async editarAvaliacao(
+    @Param('productId') productId: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() avaliacao: GerenciaAvaliacao,
+  ) {
+    return this.avaliacaoService.editarAvaliacao(productId, {
       ...avaliacao,
       usuarioId: req.user.uid,
     });

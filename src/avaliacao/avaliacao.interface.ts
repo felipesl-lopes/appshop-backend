@@ -20,10 +20,11 @@ export interface AvaliacaoResponse {
   minhaAvaliacao: boolean;
 }
 
-export interface CriarAvaliacao {
+export interface GerenciaAvaliacao {
   usuarioId: string;
-  orderId: string;
+  orderId?: string;
+  avaliacaoId?: string;
   nota: number;
   comentario: string;
-  dataCriacao?: string;
+  dataCriacao: string;
 }

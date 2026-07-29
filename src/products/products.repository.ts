@@ -154,6 +154,7 @@ export class ProductsRepository {
   async atualizarAvaliacaoProduto(
     id: string,
     nota: number,
+    notaAnterior?: number,
   ): Promise<{ notaMedia: number; totalAvaliacoes: number }> {
     interface ProductAvaliacao {
       totalAvaliacoes?: number;
@@ -169,10 +170,22 @@ export class ProductsRepository {
     const totalAtual = produto?.totalAvaliacoes ?? 0;
     const mediaAtual = produto?.notaMedia ?? 0;
 
-    const novoTotal = totalAtual + 1;
-    const novaMedia = Number(
-      ((mediaAtual * totalAtual + nota) / novoTotal).toFixed(2),
-    );
+    let novoTotal = totalAtual;
+    let novaMedia: number;
+
+    if (notaAnterior == null) {
+      // Nova avaliação
+      novoTotal = totalAtual + 1;
+      novaMedia = Number(
+        ((mediaAtual * totalAtual + nota) / novoTotal).toFixed(2),
+      );
+    } else {
+      // Edição de avaliação
+      const somaNotas = mediaAtual * totalAtual;
+      novaMedia = Number(
+        ((somaNotas - notaAnterior + nota) / totalAtual).toFixed(2),
+      );
+    }
 
     await ref.update({
       totalAvaliacoes: novoTotal,
